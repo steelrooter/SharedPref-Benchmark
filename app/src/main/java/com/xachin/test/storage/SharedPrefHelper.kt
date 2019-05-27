@@ -13,8 +13,9 @@ object SharedPrefHelper {
     private var generatedData = mutableMapOf<String, String>()
     private var numberOfPairs: Long = -1
 
-    fun init(context: Context, file: String = "sp_benchmark") =
-        context.getSharedPreferences(file.toSpFileName(), Context.MODE_PRIVATE)
+    fun init(context: Context, file: String = "sp_benchmark") {
+        sharedPreferencesMap[file] = context.getSharedPreferences(file.toSpFileName(), Context.MODE_PRIVATE)
+    }
 
     fun generateRandomData(numberOfPairs: Long) {
         for (i in 0..numberOfPairs) {
