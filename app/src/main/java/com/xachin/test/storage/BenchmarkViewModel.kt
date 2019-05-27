@@ -13,4 +13,6 @@ interface BenchmarkViewModel {
 
     fun onClickInitAndRead()
 
+    fun onClickMultiInitAndRead()
+
 }

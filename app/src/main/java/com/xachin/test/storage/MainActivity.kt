@@ -5,6 +5,11 @@ import android.os.Bundle
 import android.widget.EditText
 import androidx.databinding.DataBindingUtil
 import com.xachin.test.storage.databinding.ActivityMainBinding
+import io.reactivex.Completable
+import io.reactivex.Observable
+import io.reactivex.Scheduler
+import io.reactivex.rxkotlin.Observables
+import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
 
 
@@ -72,4 +77,30 @@ class MainActivity :
         }
     }
 
+    override fun onClickMultiInitAndRead() {
+        val bigFile = Observable.fromCallable {
+            initAndRead("sp_benchmark", 10)
+        }.subscribeOn(Schedulers.io())
+
+        val smallFile = Observable.fromCallable {
+            initAndRead("t", 10)
+        }.subscribeOn(Schedulers.io())
+
+        Observables.zip(bigFile, smallFile)
+            .doOnComplete { Timber.d("Multi read completed") }
+            .doOnError { Timber.e(it, "Multi read failure") }
+            .subscribe()
+
+    }
+
+    private fun initAndRead(file: String, pairs: Long) {
+        withExecutionTimeLog("SP init: $file") {
+            SharedPrefHelper.init(this, file)
+        }
+        withExecutionTimeLog("Read data: $file") {
+            SharedPrefHelper.readAllDataFromDisk(pairs, file) {
+                Timber.d("~~~~ First read from $file took ${now() - it}ms")
+            }
+        }
+    }
 }
